@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.js"
+            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="bootstrap/css/theme.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+
+    <title>Device List</title>
+</head>
+
+<body>
+<div class="modal" tabindex="-1" role="dialog" id="deleteModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete device</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="deleteModalBody">
+                <p>Are you sure you want to delete the device?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger delete-sure" data-id="" onclick="deleteSure(this)"><i class="glyphicon glyphicon-trash"></i><span> Delete</span></button>
+                            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="createModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add new device</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="createModalBody">
+                <form>
+                    <div class="form-group">
+                        <label for="deviceName">Device Name</label>
+                        <input type="text" class="form-control" id="deviceName" placeholder="Enter device name">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" onclick="createDevice()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">J I/O</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link disabled" href="#">Home</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<h1>Device list <button class="btn btn-primary" data-toggle="modal" data-target="#createModal"><span class="glyphicon glyphicon-plus"></span> Add new device</button></h1>
+<div id="accordion" class="devices">
+</div>
+
+<script>
+    var url = window.location.protocol + "//" + window.location.host + "/data?device=";
+    getDevices()
+
+    function getDevices(){
+    clrDevices()
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: "/device/list",
+        processData: false,
+        success: function(msg) {
+            for(var i=0; i<msg.length;i++){
+                $('#accordion').append($(`
+                    <div class="card">
+                        <div class="card-header" id="heading` + msg[i].name + `">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse` + msg[i].name + `" aria-expanded="true" aria-controls="collapse` + msg[i].name + `">
+                                    ` + msg[i].name + `
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapse` + msg[i].name + `" class="collapse" aria-labelledby="heading` + msg[i].name + `" data-parent="#accordion">
+                            <div class="card-body">
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <a class="btn btn-primary" id="show` + msg[i].link + `" href="` + url + msg[i].link + `&data=` + msg[i].data + `"><i class="glyphicon glyphicon-eye-open"></i><span> Show data</span></a>
+                                        <a class="btn btn-primary" href="#"><i class="glyphicon glyphicon-wrench"></i><span> Modify</span></a>
+                                        <button onClick="deleteDevice(this)" id="delete` + msg[i].link + `" class="btn btn-danger btn-delete delete-device" data-id="` + msg[i].link + `" data-toggle="modal" data-target="#deleteModal"><i class="glyphicon glyphicon-trash"></i><span> Delete</span></button>
+                                        <button class="btn btn-primary" type="button" data-token="` + msg[i].link + `" data-name="` + msg[i].link + `" onClick="showToken(this)">Show token</button>
+                                    </span>
+                                    <input type="text" class="form-control" placeholder="Device token" readonly id="token-` + msg[i].link + `">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `));
+                if(msg[i].data == ""){
+                    $('#show' + msg[i].link).addClass('disabled')
+                }
+
+                if(msg[i].name == "Device1"){
+                    $('#delete' + msg[i].link).prop('disabled','disabled')
+                }
+            }
+        }
+    });
+    }
+
+    function clrDevices(){
+        $('#accordion').empty()
+    }
+
+    function deleteDevice(button){
+        $('.delete-sure').attr('data-id', $(button).data('id'));
+    }
+
+    function deleteSure(button){
+        var res = "";
+        $.ajax({
+        type: "POST",
+        beforeSend: function(request) {
+            request.setRequestHeader("token", $(button).data('id'));
+        },
+        url: "/device/delete",
+        success: function(msg){
+            if(msg == "Ok."){
+                getDevices()
+                $("#deleteModal").modal('hide')
+            } else {
+                $("#deleteModalBody").append(`
+                <div class="alert alert-danger" role="alert">
+                    Unexpected error occured. Try again later.
+                </div>`)
+            }
+        }
+        });
+    }
+
+    function createDevice(){
+        $.ajax({
+        type: "POST",
+        beforeSend: function(request) {
+            request.setRequestHeader("name", $('#deviceName').val());
+        },
+        url: "/device/add",
+        success: function(msg){
+            if(msg.indexOf("Ok.") != -1){
+                getDevices()
+                $("#createModal").modal('hide')
+            } else {
+                $("#createModalBody").append(`
+                <div class="alert alert-warning" role="alert">
+                    Device name is already taken.
+                </div>`)
+            }
+        }
+        });
+    }
+
+    function showToken(button){
+        $("#token-" + $(button).data('name')).val($(button).data('token'))
+        console.log("#token-" + $(button).data('name'))
+        console.log($(button).data('token'))
+    }
+</script>
+</body>
+</html>
