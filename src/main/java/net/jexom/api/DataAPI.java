@@ -95,7 +95,7 @@ public class DataAPI {
             Map<String, Object> model = new HashMap<>();
             model.put("token", req.queryParams("device"));
             model.put("data", req.queryParams("data"));
-            return new VelocityTemplateEngine().render(new ModelAndView(model, "templates/data.vm"));
+            return new VelocityTemplateEngine().render(new ModelAndView(model, "templates/graph.vm"));
         }
         res.redirect("/404");
         return null;

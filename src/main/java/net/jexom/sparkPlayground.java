@@ -23,6 +23,7 @@ public class sparkPlayground {
             post("/delete", DeviceAPI.deleteDevice);
             post("/token/update", DeviceAPI.updateToken);
             get("/list", DeviceAPI.getDeviceList);
+            get("", DeviceAPI.showDevice);
         });
 
         /*//Userland

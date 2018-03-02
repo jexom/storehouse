@@ -16,23 +16,8 @@
   <script src="https://d33wubrfki0l68.cloudfront.net/js/fe6311b3c294cba469a3939f21603640522c41e5/aquamarine/js/animate-in.js"></script>
 </head><body>
   <!-- Navbar -->
-  
-  <!-- Cover -->
-  
-  <!-- Article style section -->
-  
-  <!-- Features -->
-  
-  <!-- Features -->
-  <!-- Carousel reviews -->
-  
-  <!-- Call to action -->
-  
-  <!-- Footer -->
-  
-  <!-- JavaScript dependencies -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">J I/O</a>
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+      <a class="navbar-brand" href="#">Storehouse</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
       </button>
@@ -61,10 +46,26 @@
           </ul>
       </div>
   </nav>
+  
+  <!-- Cover -->
+  
+  <!-- Article style section -->
+  
+  <!-- Features -->
+  
+  <!-- Features -->
+  <!-- Carousel reviews -->
+  
+  <!-- Call to action -->
+  
+  <!-- Footer -->
+  
+  <!-- JavaScript dependencies -->
+
 
 <div class="py-5"><div class="container">
         <div class="row">
-            <canvas id="canvas" style="max-height:500px;max-width:1000px;"></canvas>
+            <canvas id="canvas"></canvas>
         </div>
         <div class="row">
             <table class="table header-fixed">
@@ -96,6 +97,7 @@
 
 <script>
     var url = window.location.protocol + "//" + window.location.host + "/";
+    $(".navbar-brand").attr("href",url)
     $('.home').attr('href', url);
     var urlParams = new URLSearchParams(window.location.search);
     var token = urlParams.get('device');
@@ -229,7 +231,11 @@
                 }
 
                 config.data.datasets[0].data = value.slice(0,30);
-                config.data.labels = time.slice(0,30);
+                arr = time.slice(0,30);
+                arr.forEach(function(cur, ind, arr){
+                    config.data.labels[ind] = [cur.split(" ")[0], cur.split(" ")[1]]
+                });
+
                 window.myLine.update();
             }
         });
@@ -243,9 +249,9 @@
         success: function(msg) {
             for(var i=0; i<msg.length;i++){
                 if(msg[i].data != ""){
-                    $('.device-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + msg[i].link + '&data=' + msg[i].data + '">' + msg[i].name + '</a>'));
+                    $('.device-dropdown').append($('<a class="dropdown-item" href="' + url + 'device?device=' + msg[i].link + '">' + msg[i].name + '</a>'));
                 } else {
-                    $('.device-dropdown').append($('<a class="dropdown-item disabled" href="#">' + msg[i].name + '</a>'));
+                    //$('.device-dropdown').append($('<a class="dropdown-item disabled" href="#">' + msg[i].name + '</a>'));
                 }
             }
         }
@@ -272,6 +278,51 @@
         num = 5;
         timerId = setInterval(drawOutput,5000);
     };
+
+    function formatLabel(str, maxwidth){
+        var sections = [];
+        var words = str.split(" ");
+        var temp = "";
+
+        words.forEach(function(item, index){
+            if(temp.length > 0)
+            {
+                var concat = temp + ' ' + item;
+
+                if(concat.length > maxwidth){
+                    sections.push(temp);
+                    temp = "";
+                }
+                else{
+                    if(index == (words.length-1))
+                    {
+                        sections.push(concat);
+                        return;
+                    }
+                    else{
+                        temp = concat;
+                        return;
+                    }
+                }
+            }
+
+            if(index == (words.length-1))
+            {
+                sections.push(item);
+                return;
+            }
+
+            if(item.length < maxwidth) {
+                temp = item;
+            }
+            else {
+                sections.push(item);
+            }
+
+        });
+
+        return sections;
+    }
 </script>
 
 </body></html>

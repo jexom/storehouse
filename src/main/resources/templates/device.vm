@@ -1,0 +1,150 @@
+<html>
+	<head>
+		<script
+			src="https://code.jquery.com/jquery-3.2.1.js"
+			integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+			crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+		<link rel="stylesheet" href="../bootstrap/css/theme.css">
+		<link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+		<link rel="stylesheet" href="../fonts/icomoon.css"></head>
+
+		<title>Data List</title>
+	</head>
+	<body>
+
+		<nav class="navbar navbar-expand-sm navbar-light bg-light">
+			<a class="navbar-brand" href="#">Storehouse</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link home" href="#">Home</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="DeviceDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Devices
+						</a>
+						<div class="dropdown-menu device-dropdown" aria-labelledby="navbarDropdown">
+							<!-- <a class="dropdown-item" href="#">Action</a> -->
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="DataDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Data
+						</a>
+						<div class="dropdown-menu data-dropdown" aria-labelledby="navbarDropdown">
+							<!-- <a class="dropdown-item" href="#">Action</a> -->
+						</div>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<div class="container-fluid">
+			<div class="row" id="cards">
+
+			</div>
+		</div>
+
+		<script>
+
+			token = '${token}'
+			var url = window.location.protocol + "//" + window.location.host + "/";
+			$(".navbar-brand").attr("href",url)
+			$('.home').attr('href', url);
+			var urlData = url + "/data?device=" + token;
+
+			$.ajax({
+                    type: "GET",
+                    dataType: "json",
+                    url: "/device/list",
+                    processData: false,
+                    success: function(msg) {
+                        for(var i=0; i<msg.length;i++){
+                            if(msg[i].data != ""){
+                                $('.device-dropdown').append($('<a class="dropdown-item" href="' + url + 'device?device=' + msg[i].link + '">' + msg[i].name + '</a>'));
+                            } else {
+                                //$('.device-dropdown').append($('<a class="dropdown-item disabled" href="#">' + msg[i].name + '</a>'));
+                            }
+                        }
+                    }
+                });
+
+                $.ajax({
+                    type: "GET",
+                    dataType: "json",
+                    url: "/data/list?device="+token,
+                    processData: false,
+                    success: function(msg) {
+                        for(var i=0; i<msg.length;i++){
+                            $('.data-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + token + '&data=' + msg[i] + '">' + msg[i] + '</a>'));
+                        }
+                    }
+                });
+
+			getData()
+
+			function getData(){
+			clrData()
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "/data/list?device="+token,
+				processData: false,
+				success: function(msg) {
+					for(var i=0; i<msg.length;i++){
+						$('#cards').append($(`
+							<div class="col-lg-4 col-md-6 col-md-6 col-sm-6">
+								<div class="card" style="margin: 3% 1%;">
+									<div class="card-header"><h4>` + msg[i] + `</h4></div>
+									<div class="card-body">
+										<div class="btn-group" style="display: flex;">
+											<a href="` + urlData + `&data=` + msg[i] + `" class="btn btn-primary"><span class="icon icon-stats-dots"></span> Show graph</a>
+											<a href="#" class="btn btn-danger" data-data="` + msg[i] + `"><span class="icon icon-bin"></span> Delete data</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						`))
+					}
+				}
+			});
+			}
+
+			function clrData(){
+				$('#cards').empty()
+			}
+
+			function deleteData(button){
+				$('.delete-sure').attr('data-id', $(button).data('id'));
+			}
+
+			function deleteSure(button){
+				var res = "";
+				$.ajax({
+				type: "POST",
+				beforeSend: function(request) {
+					request.setRequestHeader("token", $(button).data('id'));
+				},
+				url: "/device/delete",
+				success: function(msg){
+					if(msg == "Ok."){
+						getDevices()
+						$("#deleteModal").modal('hide')
+					} else {
+						$("#deleteModalBody").append(`
+						<div class="alert alert-danger" role="alert">
+							Unexpected error occured. Try again later.
+						</div>`)
+					}
+				}
+				});
+			}
+		</script>
+	</body>
+</html>

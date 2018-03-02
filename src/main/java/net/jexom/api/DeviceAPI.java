@@ -1,7 +1,12 @@
 package net.jexom.api;
 
 import net.jexom.util.MongoUtil;
+import spark.ModelAndView;
 import spark.Route;
+import spark.template.velocity.VelocityTemplateEngine;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeviceAPI {
     public static Route addDevice = (req, res) -> {
@@ -52,6 +57,16 @@ public class DeviceAPI {
     };
 
     public static Route getDeviceList = (req, res) -> MongoUtil.getDeviceList();
+
+    public static Route showDevice = (req, res) -> {
+        if (!req.queryParams().isEmpty() && !req.queryParams("device").isEmpty()) {
+            Map<String, Object> model = new HashMap<>();
+            model.put("token", req.queryParams("device"));
+            return new VelocityTemplateEngine().render(new ModelAndView(model, "templates/device.vm"));
+        }
+        res.redirect("/404");
+        return null;
+    };
 
     /*
     public static Route updateUserPass = (req, res) -> {
