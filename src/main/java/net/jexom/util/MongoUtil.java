@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.print.Doc;
 import javax.swing.text.html.HTMLDocument;
@@ -156,9 +157,17 @@ public class MongoUtil {
         Document doc = getDevice(token);
         if(doc == null)
             return "No device";
-        ArrayList<String> dataList = new ArrayList<>();
+        ArrayList<HashMap<String,String>> dataList = new ArrayList<>();
         Device device = new Device(doc);
-        dataList.addAll(device.getFileList().keySet());
+        for (String file : device.getFileList().keySet()) {
+            HashMap<String, String> obj = new HashMap<>();
+            obj.put("name", file);
+            JSONObject last = new JSONObject();
+            obj.put("value", DataUtil.getLast(device.getFileList().get(file)).get("value"));
+            obj.put("time", DataUtil.getLast(device.getFileList().get(file)).get("timestamp"));
+            dataList.add(obj);
+        }
+
         return new JSONArray(dataList).toString();
     }
 }

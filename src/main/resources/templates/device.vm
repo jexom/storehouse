@@ -57,7 +57,7 @@
 			var url = window.location.protocol + "//" + window.location.host + "/";
 			$(".navbar-brand").attr("href",url)
 			$('.home').attr('href', url);
-			var urlData = url + "/data?device=" + token;
+			var urlData = url + "data?device=" + token;
 
 			$.ajax({
                     type: "GET",
@@ -101,11 +101,13 @@
 						$('#cards').append($(`
 							<div class="col-lg-4 col-md-6 col-md-6 col-sm-6">
 								<div class="card" style="margin: 3% 1%;">
-									<div class="card-header"><h4>` + msg[i] + `</h4></div>
+									<div class="card-header"><h4>` + msg[i].name + `</h4></div>
 									<div class="card-body">
+									        <h4>Last:</h4>
+                                            <h3>` + msg[i].value + `</h3>
 										<div class="btn-group" style="display: flex;">
-											<a href="` + urlData + `&data=` + msg[i] + `" class="btn btn-primary"><span class="icon icon-stats-dots"></span> Show graph</a>
-											<a href="#" class="btn btn-danger" data-data="` + msg[i] + `"><span class="icon icon-bin"></span> Delete data</a>
+											<a href="` + urlData + `&data=` + msg[i].name + `" class="btn btn-primary"><span class="icon icon-stats-dots"></span> Show graph</a>
+											<a href="#" class="btn btn-danger" data-data="` + msg[i].name + `"><span class="icon icon-bin"></span> Delete data</a>
 										</div>
 									</div>
 								</div>

@@ -90,4 +90,25 @@ public class DataUtil {
         jsonData = new JSONArray(sublist);
         return jsonData.toString();
     }
+
+    public static HashMap<String, String> getLast(String filepath){
+        String dataText;
+        JSONArray jsonData;
+
+        if (Files.exists(Paths.get(filepath))) {
+            try {
+                dataText = new String(Files.readAllBytes(Paths.get(filepath)), "UTF-8");
+                jsonData = new JSONObject(dataText).getJSONArray("data");
+            } catch (IOException ex) {
+                Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
+                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+        } else {
+            return null;
+        }
+
+        List list = jsonData.toList();
+        return (HashMap<String, String>) list.get(0);
+    }
 }
