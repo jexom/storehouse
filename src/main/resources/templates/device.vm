@@ -82,7 +82,7 @@
                     processData: false,
                     success: function(msg) {
                         for(var i=0; i<msg.length;i++){
-                            $('.data-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + token + '&data=' + msg[i] + '">' + msg[i] + '</a>'));
+                            $('.data-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + token + '&data=' + msg[i].name + '">' + msg[i].name + '</a>'));
                         }
                     }
                 });

@@ -97,9 +97,9 @@
             for(var i=0; i<msg.length;i++){
                 $('#accordion').append($(`
                     <div class="card">
-                        <div class="card-header" id="heading` + msg[i].name + `">
+                        <div class="card-header" id="heading` + msg[i].name + `" data-toggle="collapse" data-target="#collapse` + msg[i].name + `" aria-expanded="true" aria-controls="collapse` + msg[i].name + `">
                             <h5 class="mb-0">
-                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse` + msg[i].name + `" aria-expanded="true" aria-controls="collapse` + msg[i].name + `">
+                                <button class="btn btn-link collapsed">
                                     ` + msg[i].name + `
                                 </button>
                             </h5>
