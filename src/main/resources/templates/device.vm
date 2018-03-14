@@ -14,6 +14,25 @@
 		<title>Data List</title>
 	</head>
 	<body>
+	    <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete device</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="deleteModalBody">
+                        <p>Are you sure you want to delete the device?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger delete-sure" data-type="" onclick="deleteSure(this)"><i class="glyphicon glyphicon-trash"></i><span> Delete</span></button>
+                                    </div>
+                </div>
+            </div>
+        </div>
 
 		<nav class="navbar navbar-expand-sm navbar-light bg-light">
 			<a class="navbar-brand" href="#">Storehouse</a>
@@ -107,7 +126,7 @@
                                             <h3>` + msg[i].value + `</h3>
 										<div class="btn-group" style="display: flex;">
 											<a href="` + urlData + `&data=` + msg[i].name + `" class="btn btn-primary"><span class="icon icon-stats-dots"></span> Show graph</a>
-											<a href="#" class="btn btn-danger" data-data="` + msg[i].name + `"><span class="icon icon-bin"></span> Delete data</a>
+											<button data-toggle="modal" data-target="#deleteModal" onClick="deleteData(this)" class="btn btn-danger" data-data="` + msg[i].name + `"><span class="icon icon-bin"></span> Delete data</button>
 										</div>
 									</div>
 								</div>
@@ -123,7 +142,7 @@
 			}
 
 			function deleteData(button){
-				$('.delete-sure').attr('data-id', $(button).data('id'));
+				$('.delete-sure').attr('data-type', $(button).data('data'));
 			}
 
 			function deleteSure(button){
@@ -131,12 +150,13 @@
 				$.ajax({
 				type: "POST",
 				beforeSend: function(request) {
-					request.setRequestHeader("token", $(button).data('id'));
+					request.setRequestHeader("token", token);
+					request.setRequestHeader("type", $(button).data('type'))
 				},
-				url: "/device/delete",
+				url: "/data/delete",
 				success: function(msg){
 					if(msg == "Ok."){
-						getDevices()
+						getData()
 						$("#deleteModal").modal('hide')
 					} else {
 						$("#deleteModalBody").append(`
