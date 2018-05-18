@@ -10,7 +10,7 @@ import static spark.Spark.*;
 
 public class sparkPlayground {
     public static void main(String[] args) {
-        MongoUtil.connectDatabase();
+        //MongoUtil.connectDatabase();
         staticFileLocation("/templates");
         CorsFilter.apply();
         //Device routes
