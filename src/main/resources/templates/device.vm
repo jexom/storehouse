@@ -43,7 +43,7 @@
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item active">
-						<a class="nav-link home" href="#">Home</a>
+						<a class="nav-link home" href="#"><span class="icon icon-home3"></span> Home</a>
 					</li>
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" id="DeviceDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -79,34 +79,34 @@
 			var urlData = url + "data?device=" + token;
 
 			$.ajax({
-                    type: "GET",
-                    dataType: "json",
-                    url: "/device/list",
-                    processData: false,
-                    success: function(msg) {
-                        for(var i=0; i<msg.length;i++){
-                            if(msg[i].data != ""){
-                                $('.device-dropdown').append($('<a class="dropdown-item" href="' + url + 'device?device=' + msg[i].link + '">' + msg[i].name + '</a>'));
-                            } else {
-                                //$('.device-dropdown').append($('<a class="dropdown-item disabled" href="#">' + msg[i].name + '</a>'));
-                            }
+                type: "GET",
+                dataType: "json",
+                url: "/device/list",
+                processData: false,
+                success: function(msg) {
+                    for(var i=0; i<msg.length;i++){
+                        if(msg[i].data != ""){
+                            $('.device-dropdown').append($('<a class="dropdown-item" href="' + url + 'device?device=' + msg[i].link + '">' + msg[i].name + '</a>'));
+                        } else {
+                            //$('.device-dropdown').append($('<a class="dropdown-item disabled" href="#">' + msg[i].name + '</a>'));
                         }
                     }
-                });
+                }
+            });
 
-                $.ajax({
-                    type: "GET",
-                    dataType: "json",
-                    url: "/data/list?device="+token,
-                    processData: false,
-                    success: function(msg) {
-                        for(var i=0; i<msg.length;i++){
-                            $('.data-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + token + '&data=' + msg[i].name + '">' + msg[i].name + '</a>'));
-                        }
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: "/data/list?device="+token,
+                processData: false,
+                success: function(msg) {
+                    for(var i=0; i<msg.length;i++){
+                        $('.data-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + token + '&data=' + msg[i].name + '">' + msg[i].name + '</a>'));
                     }
-                });
+                }
+            });
 
-			getData()
+            getData()
 
 			function getData(){
 			clrData()

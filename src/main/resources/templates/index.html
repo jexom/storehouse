@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="bootstrap/css/theme.css">
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../fonts/icomoon.css">
 
     <title>Device List</title>
 </head>
@@ -68,13 +69,30 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link home" href="#">Home</a>
+                <a class="nav-link home" href="#"><span class="icon icon-home3"></span> Home</a>
             </li>
         </ul>
     </div>
 </nav>
 
-<h1>Device list <button class="btn btn-primary" data-toggle="modal" data-target="#createModal"><span class="glyphicon glyphicon-plus"></span> Add new device</button></h1>
+<h1 class="row" style="margin: 10px">
+    <div class="col-auto">
+        Device list
+    </div>
+</h1>
+<div class="row" style="margin:10px">
+    <div class="col-auto">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal"><span class="glyphicon glyphicon-plus"></span> Add new device</button>
+    </div>
+    <div class="col-4">
+        <div class="input-group mb-3">
+            <input id="filter-input" type="text" class="form-control" placeholder="Filter" aria-label="Recipient's username" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+                <button id="filter-button" onclick="filterResult()" class="btn btn-primary" type="button"><span class="icon icon-search"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="accordion" class="devices">
 </div>
 
@@ -86,7 +104,7 @@
     url = url + "device?device=";
     getDevices()
 
-    function getDevices(){
+    function getDevices(filter){
     clrDevices()
     $.ajax({
         type: "GET",
@@ -95,6 +113,7 @@
         processData: false,
         success: function(msg) {
             for(var i=0; i<msg.length;i++){
+            if(filter === undefined || msg[i].name.toLowerCase().includes(filter.toLowerCase())){
                 $('#accordion').append($(`
                     <div class="card">
                         <div class="card-header" id="heading` + msg[i].name + `" data-toggle="collapse" data-target="#collapse` + msg[i].name + `" aria-expanded="true" aria-controls="collapse` + msg[i].name + `">
@@ -110,7 +129,7 @@
                                 <div class="input-group">
                                     <span class="input-group-btn">
                                         <a class="btn btn-primary" id="show` + msg[i].link + `" href="` + url + msg[i].link + `"><i class="glyphicon glyphicon-eye-open"></i><span> Show data</span></a>
-                                        <a class="btn btn-primary" href="#"><i class="glyphicon glyphicon-wrench"></i><span> Modify</span></a>
+                                        <!-- <a class="btn btn-primary" href="#"><i class="glyphicon glyphicon-wrench"></i><span> Modify</span></a> -->
                                         <button onClick="deleteDevice(this)" id="delete` + msg[i].link + `" class="btn btn-danger btn-delete delete-device" data-id="` + msg[i].link + `" data-toggle="modal" data-target="#deleteModal"><i class="glyphicon glyphicon-trash"></i><span> Delete</span></button>
                                         <button class="btn btn-primary" type="button" data-token="` + msg[i].link + `" data-name="` + msg[i].link + `" onClick="showToken(this)">Show token</button>
                                     </span>
@@ -120,6 +139,7 @@
                         </div>
                     </div>
                 `));
+            }
                 if(msg[i].data == ""){
                     $('#show' + msg[i].link).addClass('disabled')
                 }
@@ -188,6 +208,25 @@
         console.log("#token-" + $(button).data('name'))
         console.log($(button).data('token'))
     }
+
+
+    // Get the input field
+    var input = document.getElementById("filter-input");
+
+    function filterResult(){
+        getDevices(input.value)
+    }
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+     // Cancel the default action, if needed
+    event.preventDefault();
+     // Number 13 is the "Enter" key on the keyboard
+     if (event.keyCode === 13) {
+       // Trigger the button element with a click
+       document.getElementById("filter-button").click();
+     }
+});
 </script>
 </body>
 </html>

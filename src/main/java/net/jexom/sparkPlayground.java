@@ -1,10 +1,7 @@
 package net.jexom;
-import net.jexom.api.DataAPI;
-import net.jexom.api.DeviceAPI;
+import net.jexom.api.*;
 import net.jexom.util.MongoUtil;
 import spark.Filter;
-import spark.Request;
-import spark.Response;
 import spark.Spark;
 
 import java.util.HashMap;
