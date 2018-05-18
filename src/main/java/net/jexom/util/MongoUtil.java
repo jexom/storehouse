@@ -32,7 +32,7 @@ public class MongoUtil {
 
     public static void connectDatabase(){
         lgr = Logger.getLogger(MongoUtil.class.getName());
-        MongoClient mongo = new MongoClient("localhost", 27017);
+        MongoClient mongo = new MongoClient("chst1000.dyndns.org", 27017);
         MongoDatabase database = mongo.getDatabase("iot");
         deviceCollection = database.getCollection("devices");
     }
