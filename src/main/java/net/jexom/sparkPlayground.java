@@ -16,9 +16,8 @@ public class sparkPlayground {
         //Device routes
         path("/device", () -> {
             post("/add", DeviceAPI.addDevice);
-            //post("/update", DeviceAPI.updateDevice);
-            post("/delete", DeviceAPI.deleteDevice);
-            post("/token/update", DeviceAPI.updateToken);
+            delete("/delete", DeviceAPI.deleteDevice);
+            //post("/token/update", DeviceAPI.updateToken);
             get("/list", DeviceAPI.getDeviceList);
             get("", DeviceAPI.showDevice);
         });

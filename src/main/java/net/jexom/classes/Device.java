@@ -3,6 +3,7 @@ package net.jexom.classes;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,21 +11,7 @@ public class Device {
     private String name;
     private String token;
     private Integer tokenCount;
-    private HashMap<String, String> fileList;
-
-    public Device(){
-        this.name = "";
-        this.tokenCount = 0;
-        this.token = "";
-        this.fileList = new HashMap<>();
-    }
-
-    public Device(String name){
-        this.name = name;
-        this.tokenCount = 0;
-        this.token = "";
-        this.fileList = new HashMap<>();
-    }
+    private HashMap<String, ArrayList<Document>> fileList;
 
     public Device(String name, String token){
         this.name = name;
@@ -34,16 +21,14 @@ public class Device {
     }
 
     public Device(Document doc){
-        Document files = (Document) doc.get("files");
         this.name = doc.getString("name");
         this.token = doc.getString("token");
         this.tokenCount = doc.getInteger("tokenCount");
-        HashMap<String, String> fileList = new HashMap<>();
-        for (Map.Entry<String, Object> file:
-                files.entrySet()) {
-            fileList.put(file.getKey(), (String)file.getValue());
+        this.fileList = new HashMap<>();
+        for(Map.Entry<String, Object> file : ((Document) doc.get("files")).entrySet()){
+            if(!(file.getValue() instanceof String))
+            this.fileList.put(file.getKey(), (ArrayList<Document>) file.getValue());
         }
-        this.fileList = fileList;
     }
 
     public String getName() {
@@ -58,7 +43,7 @@ public class Device {
         return tokenCount;
     }
 
-    public HashMap<String, String> getFileList() {
+    public HashMap<String, ArrayList<Document>> getFileList() {
         return fileList;
     }
 
@@ -71,7 +56,7 @@ public class Device {
         this.token = DigestUtils.sha256Hex(this.name + this.tokenCount);
     }
 
-    public void appendFileList(String type, String file) {
+    public void appendFileList(String type, ArrayList<Document> file) {
         this.fileList.put(type, file);
     }
 
@@ -83,20 +68,15 @@ public class Device {
         this.fileList.clear();
     }
 
-    public void setFileList(HashMap<String, String> fileList) {
+    public void setFileList(HashMap<String, ArrayList<Document>> fileList) {
         this.fileList = fileList;
     }
 
     public Document toDocument() {
-        Document files = new Document();
-        for (Map.Entry<String, String> file :
-                fileList.entrySet()) {
-            files.append(file.getKey(), file.getValue());
-        }
         return new Document("name", this.name)
                 .append("token", this.token)
                 .append("tokenCount", this.tokenCount)
-                .append("files",files);
+                .append("files",fileList);
     }
 
 

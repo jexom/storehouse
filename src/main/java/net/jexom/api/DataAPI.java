@@ -7,41 +7,41 @@ import spark.template.velocity.VelocityTemplateEngine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataAPI {
 
     public static Route addData = (req, res) -> {
-        if (req.headers().contains("token")){
-            if (!req.headers("token").isEmpty()){
-                if (req.headers().contains("type")) {
-                    if (!req.headers("type").isEmpty()) {
+        if (req.queryParams().contains("token")){
+            if (!req.queryParams("token").isEmpty()){
+                if (req.queryParams().contains("type")) {
+                    if (!req.queryParams("type").isEmpty()) {
                         if (!req.body().equals("")) {
-                            switch (MongoUtil.addData(req.headers("token"), req.headers("type"), req.body())){
+                            switch (MongoUtil.addData(req.queryParams("token"), req.queryParams("type"), req.body())){
                                 case 0:
-                                    return "Ok.";
+                                    return "{\"success\":\"true\",\"err\":\"0\"}";
                                 case -1:
-                                    return "No such device.";
-                                case -2:
-                                    return "Data write error.";
+                                    return "{\"success\":\"false\",\"err\":\"-1\"}";
                             };
                         }
-                        return "No data to add.";
+                        return "{\"success\":\"false\",\"err\":\"1\"}";
                     }
-                    return "Header \"Type\" is empty";
+                    return "{\"success\":\"false\",\"err\":\"2\"}";
                 }
-                return "Missing \"Type\" header";
+                return "{\"success\":\"false\",\"err\":\"3\"}";
             }
-            return "Header \"Token\" is empty";
+            return "{\"success\":\"false\",\"err\":\"4\"}";
         }
-        return "Missing \"Token\" header";
+        return "{\"success\":\"false\",\"err\":\"5\"}";
     };
 
     public static Route deleteData = (req, res) -> {
-        if (req.headers().contains("token")){
-            if (!req.headers("token").isEmpty()){
-                if (req.headers().contains("type")) {
-                    if (!req.headers("type").isEmpty()) {
-                            switch (MongoUtil.deleteData(req.headers("token"), req.headers("type"))){
+        if (req.queryParams().contains("token")){
+            if (!req.queryParams("token").isEmpty()){
+                if (req.queryParams().contains("type")) {
+                    if (!req.queryParams("type").isEmpty()) {
+                            switch (MongoUtil.deleteData(req.queryParams("token"), req.queryParams("type"))){
                                 case 0:
                                     return "Ok.";
                                 case -1:
@@ -60,17 +60,19 @@ public class DataAPI {
     };
 
     public static Route getData = (req, res) -> {
-        if (req.headers().contains("token")){
-            if (!req.headers("token").isEmpty()){
-                if (req.headers().contains("type")) {
-                    if (!req.headers("type").isEmpty()) {
+        if (req.queryParams().contains("token")){
+            if (!req.queryParams("token").isEmpty()){
+                if (req.queryParams().contains("type")) {
+                    if (!req.queryParams("type").isEmpty()) {
                         int num = 10;
-                        if (req.headers().contains("num") && !req.headers("num").isEmpty())
-                            num = Integer.parseInt(req.headers("num"));
-                        String data = MongoUtil.getData(req.headers("token"), req.headers("type"), num);
+                        if (req.queryParams().contains("num") && !req.queryParams("num").isEmpty())
+                            num = Integer.parseInt(req.queryParams("num"));
+                        String data = MongoUtil.getData(req.queryParams("token"), req.queryParams("type"), num);
                         if (data == ""){
                             return "Error";
                         } else {
+                            Logger lgr = Logger.getLogger(MongoUtil.class.getName());
+                            lgr.log(Level.INFO, data);
                             return data;
                         }
                     }

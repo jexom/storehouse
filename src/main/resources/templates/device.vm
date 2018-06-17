@@ -97,7 +97,7 @@
             $.ajax({
                 type: "GET",
                 dataType: "json",
-                url: "/data/list?device="+token,
+                url: "/data/list?device=" + token,
                 processData: false,
                 success: function(msg) {
                     for(var i=0; i<msg.length;i++){
@@ -113,7 +113,7 @@
 			$.ajax({
 				type: "GET",
 				dataType: "json",
-				url: "/data/list?device="+token,
+				url: "/data/list?device=" + token,
 				processData: false,
 				success: function(msg) {
 					for(var i=0; i<msg.length;i++){
@@ -149,11 +149,7 @@
 				var res = "";
 				$.ajax({
 				type: "POST",
-				beforeSend: function(request) {
-					request.setRequestHeader("token", token);
-					request.setRequestHeader("type", $(button).data('type'))
-				},
-				url: "/data/delete",
+				url: "/data/delete?token=" + token + "&type=" + $(button).data('type'),
 				success: function(msg){
 					if(msg == "Ok."){
 						getData()

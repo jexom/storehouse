@@ -197,13 +197,8 @@
     function drawOutput() {
         $.ajax({
             type: "GET",
-            beforeSend: function(request) {
-                request.setRequestHeader("token", token);
-                request.setRequestHeader("type", data);
-                request.setRequestHeader("num", num);
-            },
             dataType: "json",
-            url: "/data/get",
+            url: "/data/get?token=" + token + "&type=" + data + "&num=" + num,
             processData: false,
             success: function(msg) {
                 addValue = _.pluck(msg, 'value');
@@ -218,15 +213,17 @@
                         $('#list').prepend($('<tr><td>'+time[i]+'</td><td>'+value[i]+'&degC</td></tr>'));
                     }
                 } else {
-                    if(!addTime.includes(ttime)){
-                        ttime = addTime[0];
+                    if(addTime.indexOf(ttime) != 0){
 
-                        for (var j=num-1; j>=0; j--){
+                        for (var j=addTime.indexOf(ttime)-1; j>=0; j--){
                             value.unshift(addValue[j]);
                             time.unshift(addTime[j]);
+                            $('#list').prepend($('<tr><td class="col-md-6">'+addTime[j]+'</td><td class="col-md-6">'+addValue[j]+'&degC</td></tr>'));
                         }
+
+                        ttime = addTime[0];
                         for(var i=addValue.length-1; i>=0;i--){
-                            $('#list').prepend($('<tr><td class="col-md-6">'+addTime[i]+'</td><td class="col-md-6">'+addValue[i]+'&degC</td></tr>'));
+
                         }
                     }
                 }
@@ -261,7 +258,7 @@
     $.ajax({
         type: "GET",
         dataType: "json",
-        url: "/data/list?device="+token,
+        url: "/data/list?device=" + token,
         processData: false,
         success: function(msg) {
             for(var i=0; i<msg.length;i++){

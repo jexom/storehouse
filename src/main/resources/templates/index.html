@@ -164,10 +164,7 @@
         var res = "";
         $.ajax({
         type: "POST",
-        beforeSend: function(request) {
-            request.setRequestHeader("token", $(button).data('id'));
-        },
-        url: "/device/delete",
+        url: "/device/delete?token=" + $(button).data('id'),
         success: function(msg){
             if(msg == "Ok."){
                 getDevices()
@@ -185,12 +182,9 @@
     function createDevice(){
         $.ajax({
         type: "POST",
-        beforeSend: function(request) {
-            request.setRequestHeader("name", $('#deviceName').val());
-        },
-        url: "/device/add",
+        url: "/device/add?name=" + $('#deviceName').val(),
         success: function(msg){
-            if(msg.indexOf("Ok.") != -1){
+            if(msg.indexOf("token") != -1){
                 getDevices()
                 $("#createModal").modal('hide')
             } else {

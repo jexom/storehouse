@@ -2,6 +2,7 @@ package net.jexom.util;
 
 import net.jexom.sparkPlayground;
 import org.apache.commons.io.FileUtils;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -47,7 +48,7 @@ public class DataUtil {
 
         JSONObject jsonNewData = new JSONObject(newData);
         DateTime time = new DateTime();
-        DateTimeFormatter format = DateTimeFormat.forPattern("HH:mm:ssZZ dd.MM.yyyy");
+        DateTimeFormatter format = DateTimeFormat.forPattern("HH:mm:ss dd.MM.yyyy");
         String timestamp = format.print(time);
         jsonNewData.put("timestamp", timestamp);
         ArrayList j = new ArrayList<Map>();
@@ -68,7 +69,35 @@ public class DataUtil {
         return true;
     }
 
-    public static String getLast(String filepath, int num){
+    public static String getData(ArrayList<Document> doc, int num){
+        String dataText;
+        JSONArray jsonData = new JSONArray();
+//        String filepath = "";
+//        if (Files.exists(Paths.get(filepath))) {
+//            try {
+//                dataText = new String(Files.readAllBytes(Paths.get(filepath)), "UTF-8");
+//                jsonData = new JSONObject(dataText).getJSONArray("data");
+//            } catch (IOException ex) {
+//                Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
+//                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+//                return "";
+//            }
+//        } else {
+//            return "";
+//        }
+
+        ArrayList<Document> sublist = new ArrayList(doc.subList(0, (num < doc.size()) ? num : doc.size()));
+
+        for(Document val : sublist){
+            JSONObject obj = new JSONObject();
+            obj.put("value", val.getString("value"));
+            obj.put("timestamp", val.getString("timestamp"));
+            jsonData.put(obj);
+        }
+        return jsonData.toString();
+    }
+
+    public static String getData(String filepath){
         String dataText;
         JSONArray jsonData;
 
@@ -85,30 +114,27 @@ public class DataUtil {
             return "";
         }
 
-        List list = jsonData.toList();
-        ArrayList sublist = new ArrayList(list.subList(0, (num<list.size())?num:list.size()-1));
-        jsonData = new JSONArray(sublist);
         return jsonData.toString();
     }
 
-    public static HashMap<String, String> getLast(String filepath){
-        String dataText;
-        JSONArray jsonData;
-
-        if (Files.exists(Paths.get(filepath))) {
-            try {
-                dataText = new String(Files.readAllBytes(Paths.get(filepath)), "UTF-8");
-                jsonData = new JSONObject(dataText).getJSONArray("data");
-            } catch (IOException ex) {
-                Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
-                lgr.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-        } else {
-            return null;
-        }
-
-        List list = jsonData.toList();
-        return (HashMap<String, String>) list.get(0);
-    }
+//    public static HashMap<String, String> getData(String filepath){
+//        String dataText;
+//        JSONArray jsonData;
+//
+//        if (Files.exists(Paths.get(filepath))) {
+//            try {
+//                dataText = new String(Files.readAllBytes(Paths.get(filepath)), "UTF-8");
+//                jsonData = new JSONObject(dataText).getJSONArray("data");
+//            } catch (IOException ex) {
+//                Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
+//                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+//                return null;
+//            }
+//        } else {
+//            return null;
+//        }
+//
+//        List list = jsonData.toList();
+//        return (HashMap<String, String>) list.get(0);
+//    }
 }
