@@ -1,3 +1,9 @@
+<!--
+Выпускная работа бакалавра
+Группа А-08-14
+Чертенко Е.С.
+Листинг  шаблона страницы видов данных device.vm
+-->
 <html>
 	<head>
 		<script
@@ -14,13 +20,14 @@
 		<title>Data List</title>
 	</head>
 	<body>
+	<!--Модальное окно удаления данных-->
 	    <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Delete device</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
                         </button>
                     </div>
                     <div class="modal-body" id="deleteModalBody">
@@ -34,9 +41,10 @@
             </div>
         </div>
 
+<!--Панель навигации-->
 		<nav class="navbar navbar-expand-sm navbar-light bg-light">
 			<a class="navbar-brand" href="#">Storehouse</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 
@@ -46,24 +54,26 @@
 						<a class="nav-link home" href="#"><span class="icon icon-home3"></span> Home</a>
 					</li>
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="DeviceDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<a class="nav-link dropdown-toggle" href="#" id="DeviceDropdown" role="button" data-toggle="dropdown">
 							Devices
 						</a>
-						<div class="dropdown-menu device-dropdown" aria-labelledby="navbarDropdown">
+						<div class="dropdown-menu device-dropdown">
 							<!-- <a class="dropdown-item" href="#">Action</a> -->
 						</div>
 					</li>
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="DataDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<a class="nav-link dropdown-toggle" href="#" id="DataDropdown" role="button" data-toggle="dropdown">
 							Data
 						</a>
-						<div class="dropdown-menu data-dropdown" aria-labelledby="navbarDropdown">
+						<div class="dropdown-menu data-dropdown">
 							<!-- <a class="dropdown-item" href="#">Action</a> -->
 						</div>
 					</li>
 				</ul>
 			</div>
 		</nav>
+
+		<!--Список видов данных-->
 		<div class="container-fluid">
 			<div class="row" id="cards">
 
@@ -78,13 +88,13 @@
 			$('.home').attr('href', url);
 			var urlData = url + "data?device=" + token;
 
-			$.ajax({
+			$.ajax({ //запрос списка устройств от сервера
                 type: "GET",
                 dataType: "json",
                 url: "/device/list",
                 processData: false,
                 success: function(msg) {
-                    for(var i=0; i<msg.length;i++){
+                    for(var i=0; i<msg.length;i++){ //заполнение выпадающего списка быстрого переходя для устройств
                         if(msg[i].data != ""){
                             $('.device-dropdown').append($('<a class="dropdown-item" href="' + url + 'device?device=' + msg[i].link + '">' + msg[i].name + '</a>'));
                         } else {
@@ -94,13 +104,13 @@
                 }
             });
 
-            $.ajax({
+            $.ajax({ //запрос списка видов данных от сервера
                 type: "GET",
                 dataType: "json",
                 url: "/data/list?device=" + token,
                 processData: false,
                 success: function(msg) {
-                    for(var i=0; i<msg.length;i++){
+                    for(var i=0; i<msg.length;i++){ //заполнение выпадающего списка быстрого переходя для данных
                         $('.data-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + token + '&data=' + msg[i].name + '">' + msg[i].name + '</a>'));
                     }
                 }
@@ -108,15 +118,16 @@
 
             getData()
 
+            //Функция вывода списка видов данных
 			function getData(){
-			clrData()
-			$.ajax({
+			clrData() //очистка списка
+			$.ajax({ //запрос списка видов данных от сервера
 				type: "GET",
 				dataType: "json",
 				url: "/data/list?device=" + token,
 				processData: false,
 				success: function(msg) {
-					for(var i=0; i<msg.length;i++){
+					for(var i=0; i<msg.length;i++){ //создание и вывод элементов списка. Далее HTML-разметка элементов списка
 						$('#cards').append($(`
 							<div class="col-lg-4 col-md-6 col-md-6 col-sm-6">
 								<div class="card" style="margin: 3% 1%;">
@@ -137,24 +148,29 @@
 			});
 			}
 
+            //Функция очистки списка
 			function clrData(){
 				$('#cards').empty()
 			}
 
+            //Функция присвоения вида данных кнопке подтверждения удаления
+            //button - кнопка удаления данных
 			function deleteData(button){
 				$('.delete-sure').attr('data-type', $(button).data('data'));
 			}
 
-			function deleteSure(button){
+            //Функция подтверждения удаления данных
+            //button - кнопка подтверждения удаления данных
+			function deleteSure(button){ //запрос к серверу об удалении данных
 				var res = "";
 				$.ajax({
 				type: "POST",
 				url: "/data/delete?token=" + token + "&type=" + $(button).data('type'),
 				success: function(msg){
-					if(msg == "Ok."){
-						getData()
-						$("#deleteModal").modal('hide')
-					} else {
+					if(msg == "Ok."){ //если данные удалены
+						getData() //вывести обновленный список
+						$("#deleteModal").modal('hide') //закрыть модальное окно
+					} else { //В противном случае вывести сообщение об ошибке
 						$("#deleteModalBody").append(`
 						<div class="alert alert-danger" role="alert">
 							Unexpected error occured. Try again later.

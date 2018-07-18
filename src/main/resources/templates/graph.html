@@ -1,0 +1,238 @@
+<!--
+Выпускная работа бакалавра
+Группа А-08-14
+Чертенко Е.С.
+Листинг  шаблона страницы графика данных graph.vm
+-->
+<html><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data graph</title>
+  <!-- CSS dependencies -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="bootstrap/css/theme.css">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="../fonts/icomoon.css">
+</head><body>
+  <!-- Панель навигации -->
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+      <a class="navbar-brand" href="#">Storehouse</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                  <a class="nav-link home" href="#"><span class="icon icon-home3"></span> Home</a>
+              </li>
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="DeviceDropdown" role="button" data-toggle="dropdown">
+                      Devices
+                  </a>
+                  <div class="dropdown-menu device-dropdown">
+                      <!-- <a class="dropdown-item" href="#">Action</a> -->
+                  </div>
+              </li>
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="DataDropdown" role="button" data-toggle="dropdown">
+                      Data
+                  </a>
+                  <div class="dropdown-menu data-dropdown">
+                      <!-- <a class="dropdown-item" href="#">Action</a> -->
+                  </div>
+              </li>
+          </ul>
+      </div>
+  </nav>
+
+<!--График и таблица данных-->
+<div class="py-5"><div class="container">
+        <div class="row">
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="row">
+            <table class="table header-fixed">
+                <thead>
+                    <tr>
+                        <td style="width:50%">Time</td><td style="width:50%">Value</td>
+                    </tr>
+                </thead>
+            </table>
+            <div style="height:25vh; overflow: auto; width:100%;">
+                <table class="table header-fixed">
+                        <tbody id="list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <script src="http://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script
+        src="https://code.jquery.com/jquery-3.2.1.js"
+        integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.js"></script>
+<script src="date.js"></script>
+
+
+<script>
+    var url = window.location.protocol + "//" + window.location.host + "/";
+    $(".navbar-brand").attr("href",url)
+    $('.home').attr('href', url);
+    var urlParams = new URLSearchParams(window.location.search);
+    var token = urlParams.get('device');
+    var data = urlParams.get('data');
+    token = '${token}'
+    data = '${data}'
+    var num = 30;
+
+    var value = [];
+    var time = [];
+    var addValue = [];
+    var addTime = [];
+    var ttime ="";
+    var info = "";
+    var done = false;
+
+//Инициализация графика
+    var config = {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: data,
+                data: [],
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            tooltips: {
+                mode: 'label'
+            },
+            hover: {
+                mode: 'dataset'
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    type:"time",
+                    time: {
+                        unit:'day'
+                    }
+                }],
+                yAxes: [{
+                    type: "linear",
+                    display: true,
+                    position: "left",
+                    scaleLabel: {
+                        show: true,
+                        labelString: data
+                    },
+                    ticks: {
+                        suggestedMin:0,
+                        suggestedMax: 15,
+                    }
+                }]
+            }
+        }
+    };
+
+        config.data.datasets[0].borderColor = 'rgba(0,0,200,255)';
+        config.data.datasets[0].backgroundColor = 'rgba(0,0,255,255)';
+        config.data.datasets[0].pointBorderColor = 'rgba(0,0,200,255)';
+        config.data.datasets[0].pointBackgroundColor = 'rgba(0,0,255,255)';
+        config.data.datasets[0].pointBorderWidth = 1;
+        config.options.scales.xAxes[0].time.unit='day'
+
+
+
+
+    var initial = 1;
+    //Функция вывода графика и таблицы
+    function drawOutput() {
+        $.ajax({ //запрос данных от сервера
+            type: "GET",
+            dataType: "json",
+            url: "/data/get?token=" + token + "&type=" + data + "&num=" + num,
+            processData: false,
+            success: function(msg) {
+                addValue = _.pluck(msg, 'value');   //разделение данных и
+                addTime = _.pluck(msg, 'timestamp');//времени на два массива
+
+                if (initial !=0){ //если первый запрос, добавить все полученные значения в массивы вывода и таблицу
+                    initial = 0;
+                    value = addValue;
+                    ttime = addTime[0];
+                    for(var i=value.length-1; i>=0;i--){
+                        time[i] = Date.parseString(addTime[i],"HH:mm:ss dd.MM.yyyy");
+                        $('#list').prepend($('<tr><td style="width:50%">'+addTime[i]+'</td><td style="width:50%">'+value[i]+'</td></tr>'));
+                    }
+                } else { //в противном случае
+                    if(addTime.indexOf(ttime) != 0){
+                        for (var j=addTime.indexOf(ttime)-1; j>=0; j--){ //вывести только значения, которых не было при первом запросе
+                            value.unshift(addValue[j]);
+                            time.unshift(Date.parseString(addTime[j],"HH:mm:ss dd.MM.yyyy"));
+                            $('#list').prepend($('<tr><td style="width:50%">'+addTime[j]+'</td><td style="width:50%">'+addValue[j]+'</td></tr>'));
+                        }
+                        ttime = addTime[0];
+                        for(var i=addValue.length-1; i>=0;i--){
+                        }
+                    }
+                }
+                config.data.datasets[0].data = value.slice(0,30); //добавление данных на график
+                arr = time.slice(0,30);
+                //arr.forEach(function(cur, ind, arr){
+                //    config.data.labels[ind] = [cur.split(" ")[0], cur.split(" ")[1]]
+                config.data.labels = arr;
+                //});
+                window.myLine.update(); //вывод обновленного графика
+            }
+        });
+    }
+
+    $.ajax({ //запрос списка устройств от сервера
+        type: "GET",
+        dataType: "json",
+        url: "/device/list",
+        processData: false,
+        success: function(msg) {
+            for(var i=0; i<msg.length;i++){ //заполнение выпадающего списка быстрого переходя для устройств
+                if(msg[i].data != ""){
+                    $('.device-dropdown').append($('<a class="dropdown-item" href="' + url + 'device?device=' + msg[i].link + '">' + msg[i].name + '</a>'));
+                } else {
+                    //$('.device-dropdown').append($('<a class="dropdown-item disabled" href="#">' + msg[i].name + '</a>'));
+                }
+            }
+        }
+    });
+
+    $.ajax({ //запрос списка видов данных от сервера
+        type: "GET",
+        dataType: "json",
+        url: "/data/list?device=" + token,
+        processData: false,
+        success: function(msg) {
+            for(var i=0; i<msg.length;i++){ //заполнение выпадающего списка быстрого переходя для данных
+                $('.data-dropdown').append($('<a class="dropdown-item" href="' + url + 'data?device=' + token + '&data=' + msg[i].name + '">' + msg[i].name + '</a>'));
+            }
+        }
+    });
+
+    var timerId;
+
+    //Инициализация таймера запросов обновления данных при загрузке страницы
+    window.onload = function() {
+        var ctx = document.getElementById("canvas").getContext("2d");
+        window.myLine = new Chart(ctx, config);
+        drawOutput();
+        num = 5;
+        timerId = setInterval(drawOutput,5000);
+    };
+</script>
+
+</body></html>

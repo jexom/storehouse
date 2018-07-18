@@ -1,3 +1,7 @@
+// Выпускная работа бакалавра
+// Группа А-08-14
+// Чертенко Е.С.
+// Листинг  класса net.jexom.classes.Device
 package net.jexom.classes;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -8,22 +12,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Device {
-    private String name;
-    private String token;
-    private Integer tokenCount;
-    private HashMap<String, ArrayList<Document>> fileList;
+    private String name; //имя устройства
+    private String token; //ключ доступа устройства
+    private HashMap<String, ArrayList<Document>> fileList; //список видов данных устройства
 
+    //Коструктор объекта класса
+    //Входные параметры:
+    //name - имя устройства
+    //token - ключ доступа устройства
     public Device(String name, String token){
         this.name = name;
-        this.tokenCount = 1;
         this.token = token;
         this.fileList = new HashMap<>();
     }
 
+    //Коструктор объекта класса
+    //Входные параметры:
+    //doc - документ базы данных
     public Device(Document doc){
         this.name = doc.getString("name");
         this.token = doc.getString("token");
-        this.tokenCount = doc.getInteger("tokenCount");
         this.fileList = new HashMap<>();
         for(Map.Entry<String, Object> file : ((Document) doc.get("files")).entrySet()){
             if(!(file.getValue() instanceof String))
@@ -33,49 +41,25 @@ public class Device {
 
     public String getName() {
         return name;
-    }
+    } //возвращает имя устройства
 
     public String getToken() {
         return token;
-    }
-
-    public Integer getTokenCount() {
-        return tokenCount;
-    }
+    } //возвращает ключ доступа устройства
 
     public HashMap<String, ArrayList<Document>> getFileList() {
         return fileList;
-    }
+    } //возвращает список данных
 
     public void setName(String name) {
         this.name = name;
-    }
+    } //устанавливает имя устройства
 
-    public void setToken() {
-        this.tokenCount++;
-        this.token = DigestUtils.sha256Hex(this.name + this.tokenCount);
-    }
-
-    public void appendFileList(String type, ArrayList<Document> file) {
-        this.fileList.put(type, file);
-    }
-
-    public boolean removeFileList(String type) {
-        return this.fileList.remove(type) != null;
-    }
-
-    public void clearFileList() {
-        this.fileList.clear();
-    }
-
-    public void setFileList(HashMap<String, ArrayList<Document>> fileList) {
-        this.fileList = fileList;
-    }
-
+    //Метод преобразования объекта в документ базы данных
+    //Выходные данные: документ, готовый к записи в базу данных
     public Document toDocument() {
         return new Document("name", this.name)
                 .append("token", this.token)
-                .append("tokenCount", this.tokenCount)
                 .append("files",fileList);
     }
 

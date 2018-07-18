@@ -6,8 +6,6 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import net.jexom.classes.Device;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.bson.Document;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -15,11 +13,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.print.Doc;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,70 +22,72 @@ public class MongoUtil {
     private static MongoCollection<Document> deviceCollection;
     private static Logger lgr;
 
-    public static void connectDatabase(){
+    public static void connectDatabase(){ //метод подключения к базе данных
         lgr = Logger.getLogger(MongoUtil.class.getName());
         MongoClient mongo = new MongoClient("localhost", 27017);
         MongoDatabase database = mongo.getDatabase("iot");
         deviceCollection = database.getCollection("devices");
     }
 
+//    Описание: удаляет устройство из базы данных.
+//    Параметры
+//    token – ключ доступа устройства
+//    Возвращаемое значение – код выхода:
+//        -1 – устройство не существует
+//        0 – устройство успешно удалено
     public static int addDevice(String name){
-        if(deviceCollection.find(Filters.eq("name", name)).iterator().hasNext())
+        if(deviceCollection.find(Filters.eq("name", name)).iterator().hasNext()) //существует ли устройство
             return 1;
-        deviceCollection.insertOne(new Device(name, UUID.randomUUID().toString()).toDocument());
+        deviceCollection.insertOne(new Device(name, UUID.randomUUID().toString()).toDocument()); //запись нового устройства в базу данных
         return 0;
     }
-
+//    Описание: удаляет устройство из базы данных.
+//    Параметры
+//    name – имя устройства
+//    Возвращаемое значение: ключ доступа устройства
     public static String getToken(String name){
         return deviceCollection.find(new Document("name", name)).iterator().next().getString("token");
     }
 
-    public static String updateToken(String token){
-        Document deviceDoc = getDevice(token);
-        if(deviceDoc == null)
-            return "";
-        Device device = new Device(deviceDoc);
-
-        device.setToken();
-        deviceCollection.updateOne(Filters.eq("token", token),
-                Updates.combine(Updates.set("token", device.getToken()), Updates.set("tokenCount", device.getTokenCount())));
-
-        return device.getToken();
-    }
+//    Описание: добавляет данные, отправленные устройством, в базу данных.
+//    Параметры
+//    token – ключ доступа устройства
+//    type – вид данных
+//    data – данные в виде JSON-объекта
+//    Возвращаемое значение – код выхода:
+//            -1 – устройство не существует
+//            0 – данные успешно добавлены
 
     public static int addData(String token, String type, String data){
-        lgr.log(Level.INFO, "Start data write");
         Document device = getDevice(token);
         if(device == null)
             return -1;
         Document files = (Document) device.get("files");
         String val = (new JSONObject(data)).get("value").toString();
 
+        Document value = new Document();
+        value.put("value", val);
+        DateTime time = new DateTime();
+        DateTimeFormatter format = DateTimeFormat.forPattern("HH:mm:ss dd.MM.yyyy");
+        String timestamp = format.print(time);
+        value.put("timestamp", timestamp);
         if (!files.containsKey(type)){
-            Document value = new Document();
-            value.put("value", val);
-            DateTime time = new DateTime();
-            DateTimeFormatter format = DateTimeFormat.forPattern("HH:mm:ss dd.MM.yyyy");
-            String timestamp = format.print(time);
-            value.put("timestamp", timestamp);
             List<Document> file = new ArrayList<>();
             file.add(value);
             files.put(type, file);
-            deviceCollection.updateOne(Filters.eq("_id",device.getObjectId("_id")), Updates.set("files", files));
         } else {
-            Document value = new Document();
-            value.put("value", val);
-            DateTime time = new DateTime();
-            DateTimeFormatter format = DateTimeFormat.forPattern("HH:mm:ss dd.MM.yyyy");
-            String timestamp = format.print(time);
-            value.put("timestamp", timestamp);
             ((ArrayList)files.get(type)).add(0,value);
-            deviceCollection.updateOne(Filters.eq("_id",device.getObjectId("_id")), Updates.set("files", files));
         }
-        lgr.log(Level.INFO, "Data added to file.");
+        deviceCollection.updateOne(Filters.eq("_id",device.getObjectId("_id")), Updates.set("files", files));
         return 0;
     }
 
+//    Описание: удаляет устройство из базы данных.
+//    Параметры
+//    token – ключ доступа устройства
+//    Возвращаемое значение – код выхода:
+//            -1 – устройство не существует
+//            0 – устройство успешно удалено
     public static int deleteDevice(String token){
         Document device = getDevice(token);
         if(device == null)
@@ -102,24 +97,28 @@ public class MongoUtil {
         return 0;
     }
 
+//    Описание: удаляет данные, хранимые устройством, из базы данных.
+//    Параметры
+//    token – ключ доступа устройства
+//    type – вид данных
+//    Возвращаемое значение – код выхода:
+//            -1 – устройство не существует
+//            0 – данные успешно добавлены
     public static int deleteData(String token, String dataType){
         Document deviceDoc = getDevice(token);
         if(deviceDoc == null)
             return -1;
-//        String path = "C:/Users/Jexom/IdeaProjects/sparkPlayground/src/main/resources/data/" +
-//                deviceDoc.getObjectId("_id").toHexString() + "/" + dataType + ".json";
-//        try {
-//            Files.delete(Paths.get(path));
-//        } catch (IOException e) {
-//            lgr.log(Level.SEVERE, "Deletion error.");
-//            return -2;
-//        }
         Document files = (Document) deviceDoc.get("files");
         files.remove(dataType);
         deviceCollection.updateOne(Filters.eq("token", token), Updates.set("files", files));
         return 0;
     }
 
+//    Описание: возвращает устройство с заданным ключом доступа.
+//    Параметры
+//    token – ключ доступа устройства
+//    Возвращаемое значение:
+//    Документ, описывающий требуемое устройство, если оно есть в базе данных, null в противном случае.
     public static Document getDevice(String token){
         Iterator it = deviceCollection.find(Filters.eq("token",token)).iterator();
         Document device;
@@ -132,6 +131,12 @@ public class MongoUtil {
         return device;
     }
 
+//    Описание: запрашивает данные, хранимые устройством, из базы данных.
+//    Параметры
+//    token – ключ доступа устройства
+//    type – вид данных
+//    num – количество запрашиваемых данных
+//    Возвращаемое значение – строка JSON-объект
     public static String getData(String token, String type, int num){
         Document device = getDevice(token);
         if (device == null)
@@ -151,6 +156,8 @@ public class MongoUtil {
         return jsonData.toString();
     }
 
+//    Описание: возвращает список устройств с ключами доступа.
+//    Возвращаемое значение – строка JSON-объект, содержащий массив имен устройств и их ключей доступа
     public static String getDeviceList(){
         Iterator it = deviceCollection.find().iterator();
         ArrayList<HashMap> devices = new ArrayList<>();
@@ -171,20 +178,14 @@ public class MongoUtil {
         return new JSONArray(devices).toString();
     }
 
+//    Описание: запрашивает список видов данных, хранимых устройством, из базы данных.
+//    Параметры
+//    token – ключ доступа устройства
+//    Возвращаемое значение – строка JSON-объект
     public static String getDataList(String token){
         Document device = getDevice(token);
         if(device == null)
             return "No device";
-//        ArrayList<HashMap<String,String>> dataList = new ArrayList<>();
-//        Device device = new Device(doc);
-//        for (String file : device.getFileList().keySet()) {
-//            HashMap<String, String> obj = new HashMap<>();
-//            obj.put("name", file);
-//            JSONObject last = new JSONObject();
-//            obj.put("value", DataUtil.getData(device.getFileList().get(file)).get("value"));
-//            obj.put("time", DataUtil.getData(device.getFileList().get(file)).get("timestamp"));
-//            dataList.add(obj);
-//        }
         JSONArray dataList = new JSONArray();
         HashMap<String, ArrayList<Document>> files = new HashMap<>();
         for (Map.Entry<String, Object> file : ((Document)device.get("files")).entrySet()){

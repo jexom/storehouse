@@ -1,3 +1,7 @@
+// Выпускная работа бакалавра
+// Группа А-08-14
+// Чертенко Е.С.
+// Листинг основного класса net.jexom.sparkPlayground
 package net.jexom;
 import net.jexom.api.*;
 import net.jexom.util.MongoUtil;
@@ -10,40 +14,25 @@ import static spark.Spark.*;
 
 public class sparkPlayground {
     public static void main(String[] args) {
-        MongoUtil.connectDatabase();
-        staticFileLocation("/templates");
-        CorsFilter.apply();
-        //Device routes
+        MongoUtil.connectDatabase();                //подключение к базе данных
+        staticFileLocation("/templates");    //установка расположения файлов-шаблонов веб-страниц
+        CorsFilter.apply();                        //применение фильтров получения HTTP-запросов
+
+        //API-пути устройств
         path("/device", () -> {
-            post("/add", DeviceAPI.addDevice);
-            delete("/delete", DeviceAPI.deleteDevice);
-            //post("/token/update", DeviceAPI.updateToken);
-            get("/list", DeviceAPI.getDeviceList);
-            get("", DeviceAPI.showDevice);
+            post("/add", DeviceAPI.addDevice);  //добавление
+            delete("/delete", DeviceAPI.deleteDevice); //удаление
+            get("/list", DeviceAPI.getDeviceList); //отправка списка клиенту
+            get("", DeviceAPI.showDevice); //отправка страницы просмотра видов данных
         });
 
-        /*//Userland
-        path("/user", () -> {
-            post("/add", DeviceAPI.addUser);
-            //post("/updatepass", DeviceAPI.updateUserPass);
-            //post("/delete", DeviceAPI.deleteUser);
-        });
-        */
-
-
-        /*//API access
-        path( "/api", () -> {
-            post("/generate", DeviceAPI.addApiToken);
-        });
-        */
-
-        //Data routes
+        //API-пути данных
         path("/data", () -> {
-            post("/add", DataAPI.addData);
-            post("/delete", DataAPI.deleteData);
-            get("/get", DataAPI.getData);
-            get("/list", DataAPI.getDataList);
-            get("", DataAPI.showData);
+            post("/add", DataAPI.addData); //получение
+            post("/delete", DataAPI.deleteData); //удаление
+            get("/get", DataAPI.getData); //отправка клиенту
+            get("/list", DataAPI.getDataList); //отправка списка клиенту
+            get("", DataAPI.showData); //отправка страницы просмотра графика
         });
     }
 
@@ -52,6 +41,7 @@ public class sparkPlayground {
         private static final HashMap<String, String> corsHeaders = new HashMap<>();
 
         public static void apply() {
+            //установка заголовков необходимых для работы сервера
             corsHeaders.put("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
             corsHeaders.put("Access-Control-Allow-Origin", "*");
             corsHeaders.put("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");

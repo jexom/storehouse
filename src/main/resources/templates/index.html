@@ -1,3 +1,9 @@
+<!--
+Выпускная работа бакалавра
+Группа А-08-14
+Чертенко Е.С.
+Листинг  главной страницы index.html
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,13 +22,14 @@
 </head>
 
 <body>
+<!--Модальное окно удаления устройства-->
 <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Delete device</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
                 </button>
             </div>
             <div class="modal-body" id="deleteModalBody">
@@ -31,17 +38,19 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-danger delete-sure" data-id="" onclick="deleteSure(this)"><i class="glyphicon glyphicon-trash"></i><span> Delete</span></button>
-                            </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!--Модальное окно создания устройства-->
 <div class="modal" tabindex="-1" role="dialog" id="createModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add new device</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
                 </button>
             </div>
             <div class="modal-body" id="createModalBody">
@@ -60,9 +69,10 @@
     </div>
 </div>
 
+<!--Панель навигации-->
 <nav class="navbar navbar-expand-sm navbar-light bg-light">
     <a class="navbar-brand" href="#">Storehouse</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -75,6 +85,7 @@
     </div>
 </nav>
 
+<!--Список устройств-->
 <h1 class="row" style="margin: 10px">
     <div class="col-auto">
         Device list
@@ -86,7 +97,7 @@
     </div>
     <div class="col-4">
         <div class="input-group mb-3">
-            <input id="filter-input" type="text" class="form-control" placeholder="Filter" aria-label="Recipient's username" aria-describedby="basic-addon2">
+            <input id="filter-input" type="text" class="form-control" placeholder="Filter">
             <div class="input-group-append">
                 <button id="filter-button" onclick="filterResult()" class="btn btn-primary" type="button"><span class="icon icon-search"></span></button>
             </div>
@@ -104,72 +115,73 @@
     url = url + "device?device=";
     getDevices()
 
+    //Функция вывода списка устройств
+    //filter - поисковый запрос
     function getDevices(filter){
-    clrDevices()
-    $.ajax({
+    clrDevices() //очистка списка
+    $.ajax({ //запрос списка от сервера
         type: "GET",
         dataType: "json",
         url: "/device/list",
         processData: false,
         success: function(msg) {
-            for(var i=0; i<msg.length;i++){
-            if(filter === undefined || msg[i].name.toLowerCase().includes(filter.toLowerCase())){
-                $('#accordion').append($(`
-                    <div class="card">
-                        <div class="card-header" id="heading` + msg[i].name + `" data-toggle="collapse" data-target="#collapse` + msg[i].name + `" aria-expanded="true" aria-controls="collapse` + msg[i].name + `">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link collapsed">
-                                    ` + msg[i].name + `
-                                </button>
-                            </h5>
-                        </div>
+            for(var i=0; i<msg.length;i++){ //перебор полученного списка
+                if(filter === undefined || msg[i].name.toLowerCase().includes(filter.toLowerCase())){ //если поисковый запрос присутствует в имени устройства
+                    //создать и вывести элемент списка. Далее HTML-разметка элемента списка
+                    $('#accordion').append($(`
+                        <div class="card">
+                            <div class="card-header" id="heading` + msg[i].name + `" data-toggle="collapse" data-target="#collapse` + msg[i].name + `">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link collapsed">
+                                        ` + msg[i].name + `
+                                    </button>
+                                </h5>
+                            </div>
 
-                        <div id="collapse` + msg[i].name + `" class="collapse" aria-labelledby="heading` + msg[i].name + `" data-parent="#accordion">
-                            <div class="card-body">
-                                <div class="input-group">
-                                    <span class="input-group-btn">
-                                        <a class="btn btn-primary" id="show` + msg[i].link + `" href="` + url + msg[i].link + `"><i class="glyphicon glyphicon-eye-open"></i><span> Show data</span></a>
-                                        <!-- <a class="btn btn-primary" href="#"><i class="glyphicon glyphicon-wrench"></i><span> Modify</span></a> -->
-                                        <button onClick="deleteDevice(this)" id="delete` + msg[i].link + `" class="btn btn-danger btn-delete delete-device" data-id="` + msg[i].link + `" data-toggle="modal" data-target="#deleteModal"><i class="glyphicon glyphicon-trash"></i><span> Delete</span></button>
-                                        <button class="btn btn-primary" type="button" data-token="` + msg[i].link + `" data-name="` + msg[i].link + `" onClick="showToken(this)">Show token</button>
-                                    </span>
-                                    <input type="text" class="form-control" placeholder="Device token" readonly id="token-` + msg[i].link + `">
+                            <div id="collapse` + msg[i].name + `" class="collapse" data-parent="#accordion">
+                                <div class="card-body">
+                                    <div class="input-group">
+                                        <span class="input-group-btn">
+                                            <a class="btn btn-primary" id="show` + msg[i].link + `" href="` + url + msg[i].link + `"><i class="glyphicon glyphicon-eye-open"></i><span> Show data</span></a>
+                                            <!-- <a class="btn btn-primary" href="#"><i class="glyphicon glyphicon-wrench"></i><span> Modify</span></a> -->
+                                            <button onClick="deleteDevice(this)" id="delete` + msg[i].link + `" class="btn btn-danger btn-delete delete-device" data-id="` + msg[i].link + `" data-toggle="modal" data-target="#deleteModal"><i class="glyphicon glyphicon-trash"></i><span> Delete</span></button>
+                                            <button class="btn btn-primary" type="button" data-token="` + msg[i].link + `" data-name="` + msg[i].link + `" onClick="showToken(this)">Show token</button>
+                                        </span>
+                                        <input type="text" class="form-control" placeholder="Device token" readonly id="token-` + msg[i].link + `">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `));
-            }
-                if(msg[i].data == ""){
-                    $('#show' + msg[i].link).addClass('disabled')
-                }
-
-                if(msg[i].name == "Device1"){
-                    $('#delete' + msg[i].link).prop('disabled','disabled')
+                    `));
                 }
             }
         }
     });
     }
 
+    //Функция очистки списка устройств
     function clrDevices(){
-        $('#accordion').empty()
+        $('#accordion').empty() //очистка списка устройств
     }
 
+    //Функция присвоения ключа устройства кнопке подтверждения удаления
+    //button - кнопка удаления устройства
     function deleteDevice(button){
         $('.delete-sure').attr('data-id', $(button).data('id'));
     }
 
+    //Функция подтверждения удаления устройства
+    //button - кнопка подтверждения удаления устройства
     function deleteSure(button){
         var res = "";
-        $.ajax({
+        $.ajax({ //запрос к серверу об удалении устройства
         type: "POST",
         url: "/device/delete?token=" + $(button).data('id'),
         success: function(msg){
-            if(msg == "Ok."){
-                getDevices()
-                $("#deleteModal").modal('hide')
-            } else {
+            if(msg == "Ok."){ //если устройство удалено
+                getDevices() //вывести обновленный список устройств
+                $("#deleteModal").modal('hide') //закрыть модальное окно
+            } else { //иначе вывести сообщение об ошибке
                 $("#deleteModalBody").append(`
                 <div class="alert alert-danger" role="alert">
                     Unexpected error occured. Try again later.
@@ -179,15 +191,16 @@
         });
     }
 
+    //Функция создания устройства
     function createDevice(){
-        $.ajax({
+        $.ajax({ //запрос к серверу о создании устройства
         type: "POST",
         url: "/device/add?name=" + $('#deviceName').val(),
         success: function(msg){
-            if(msg.indexOf("token") != -1){
-                getDevices()
-                $("#createModal").modal('hide')
-            } else {
+            if(msg.indexOf("token") != -1){ //если устройство создано
+                getDevices() //вывести обновленный список устройств
+                $("#createModal").modal('hide') //закрыть модальное окно
+            } else {  //иначе вывести сообщение об ошибке
                 $("#createModalBody").append(`
                 <div class="alert alert-warning" role="alert">
                     Device name is already taken.
@@ -197,30 +210,20 @@
         });
     }
 
+    //Функция показа ключа доступа устройства
+    //button - кнопка показа ключа доступа устройства
     function showToken(button){
         $("#token-" + $(button).data('name')).val($(button).data('token'))
-        console.log("#token-" + $(button).data('name'))
-        console.log($(button).data('token'))
     }
 
 
     // Get the input field
     var input = document.getElementById("filter-input");
 
+    //Функция поиска устройства
     function filterResult(){
         getDevices(input.value)
     }
-
-    // Execute a function when the user releases a key on the keyboard
-    input.addEventListener("keyup", function(event) {
-     // Cancel the default action, if needed
-    event.preventDefault();
-     // Number 13 is the "Enter" key on the keyboard
-     if (event.keyCode === 13) {
-       // Trigger the button element with a click
-       document.getElementById("filter-button").click();
-     }
-});
 </script>
 </body>
 </html>
