@@ -4,7 +4,7 @@
 // Листинг  класса net.jexom.api.DeviceAPI
 package net.jexom.api;
 
-import net.jexom.util.MongoUtil;
+import net.jexom.util.DBUtil;
 import spark.ModelAndView;
 import spark.Route;
 import spark.template.velocity.VelocityTemplateEngine;
@@ -20,7 +20,7 @@ public class DataAPI {
                 if (req.queryParams().contains("type")) {
                     if (!req.queryParams("type").isEmpty()) {
                         if (!req.body().equals("")) {
-                            switch (MongoUtil.addData(req.queryParams("token"), req.queryParams("type"), req.body())){ //добавление данных в базу данных
+                            switch (DBUtil.addData(req.queryParams("token"), req.queryParams("type"), req.body())){ //добавление данных в базу данных
                                 case 0:
                                     return "{\"success\":\"true\",\"err\":\"0\"}"; //вывод сообщения об успехе добавления
                                 case -1:
@@ -43,7 +43,7 @@ public class DataAPI {
             if (!req.queryParams("token").isEmpty()){
                 if (req.queryParams().contains("type")) {
                     if (!req.queryParams("type").isEmpty()) {
-                            switch (MongoUtil.deleteData(req.queryParams("token"), req.queryParams("type"))){ //удаление данных
+                            switch (DBUtil.deleteData(req.queryParams("token"), req.queryParams("type"))){ //удаление данных
                                 case 0:
                                     return "Ok."; //данные удалены
                                 case -1:
@@ -67,7 +67,7 @@ public class DataAPI {
                         int num = 10; //установка количества выводимых данных по умолчанию
                         if (req.queryParams().contains("num") && !req.queryParams("num").isEmpty())
                             num = Integer.parseInt(req.queryParams("num")); //установка количества выводимых данных, если присутствует параметр запроса
-                        String data = MongoUtil.getData(req.queryParams("token"), req.queryParams("type"), num); //запрос данных из базы данных
+                        String data = DBUtil.getData(req.queryParams("token"), req.queryParams("type"), num); //запрос данных из базы данных
                         if (data == ""){
                             return "Error"; //данные отсутствуют
                         } else {
@@ -85,7 +85,7 @@ public class DataAPI {
 
     public static Route getDataList = (req, res) -> { //запрос списка видов данных
         if (!req.queryParams().isEmpty() && !req.queryParams("device").isEmpty()) {
-            return MongoUtil.getDataList(req.queryParams("device"));
+            return DBUtil.getDataList(req.queryParams("device"));
         }
         return "Query is not correct";
     };

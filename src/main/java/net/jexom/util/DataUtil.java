@@ -1,9 +1,7 @@
 package net.jexom.util;
 
-import net.jexom.sparkPlayground;
-import org.apache.commons.io.FileUtils;
+import net.jexom.SparkPlayground;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -13,8 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +26,7 @@ public class DataUtil {
                 dataText = new String(Files.readAllBytes(Paths.get(filepath)), "UTF-8");
                 jsonData = new JSONObject(dataText).getJSONArray("data");
             } catch (IOException ex) {
-                Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
+                Logger lgr = Logger.getLogger(SparkPlayground.class.getName());
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
                 return false;
             }
@@ -39,7 +35,7 @@ public class DataUtil {
                 try {
                     Files.createDirectories(Paths.get(filepath).getParent());
                 } catch (IOException ex) {
-                    Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
+                    Logger lgr = Logger.getLogger(SparkPlayground.class.getName());
                     lgr.log(Level.SEVERE, ex.getMessage(), ex);
                     return false;
                 }
@@ -61,7 +57,7 @@ public class DataUtil {
         try {
             Files.write(Paths.get(filepath), jsonOutData.toString(4).getBytes());
         } catch (IOException ex) {
-            Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
+            Logger lgr = Logger.getLogger(SparkPlayground.class.getName());
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
@@ -106,7 +102,7 @@ public class DataUtil {
                 dataText = new String(Files.readAllBytes(Paths.get(filepath)), "UTF-8");
                 jsonData = new JSONObject(dataText).getJSONArray("data");
             } catch (IOException ex) {
-                Logger lgr = Logger.getLogger(sparkPlayground.class.getName());
+                Logger lgr = Logger.getLogger(SparkPlayground.class.getName());
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
                 return "";
             }

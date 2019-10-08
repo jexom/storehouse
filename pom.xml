@@ -22,7 +22,7 @@
                     <configuration>
                         <archive>
                             <manifest>
-                                <mainClass>net.jexom.sparkPlayground</mainClass>
+                                <mainClass>net.jexom.SparkPlayground</mainClass>
                             </manifest>
                         </archive>
                         <descriptorRefs>
@@ -43,10 +43,33 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.11.2</version>
+        </dependency>
+
         <dependency>
             <groupId>com.sparkjava</groupId>
             <artifactId>spark-core</artifactId>
             <version>2.7.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
@@ -56,7 +79,7 @@
             <version>1.11</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io-->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -95,6 +118,12 @@
             <groupId>com.sparkjava</groupId>
             <artifactId>spark-template-velocity</artifactId>
             <version>2.7.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>6.10.0</version>
         </dependency>
 
     </dependencies>

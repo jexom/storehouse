@@ -4,7 +4,7 @@
 // Листинг основного класса net.jexom.sparkPlayground
 package net.jexom;
 import net.jexom.api.*;
-import net.jexom.util.MongoUtil;
+import net.jexom.util.DBUtil;
 import spark.Filter;
 import spark.Spark;
 
@@ -12,16 +12,16 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class sparkPlayground {
+public class SparkPlayground {
     public static void main(String[] args) {
-        MongoUtil.connectDatabase();                //подключение к базе данных
+        DBUtil.connectDatabase();                //подключение к базе данных
         staticFileLocation("/templates");    //установка расположения файлов-шаблонов веб-страниц
         CorsFilter.apply();                        //применение фильтров получения HTTP-запросов
 
         //API-пути устройств
         path("/device", () -> {
             post("/add", DeviceAPI.addDevice);  //добавление
-            delete("/delete", DeviceAPI.deleteDevice); //удаление
+            post("/delete", DeviceAPI.deleteDevice); //удаление
             get("/list", DeviceAPI.getDeviceList); //отправка списка клиенту
             get("", DeviceAPI.showDevice); //отправка страницы просмотра видов данных
         });
